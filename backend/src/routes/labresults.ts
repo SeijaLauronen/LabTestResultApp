@@ -17,6 +17,12 @@ router.get("/:personId", async (req, res) => {
 // 🔹 Lisää uusi tulos
 router.post("/", async (req, res) => {
   const resultData = req.body;
+  
+  // 🔹 Varmistetaan, ettei ResultAddedDate ole null
+  if (!resultData.ResultAddedDate) {
+    resultData.ResultAddedDate = new Date().toISOString(); // tai muoto, jota DB hyväksyy
+  }
+
   try {
     const [result] = await pool.query("INSERT INTO labtestresults SET ?", [resultData]);
     res.json(result);
