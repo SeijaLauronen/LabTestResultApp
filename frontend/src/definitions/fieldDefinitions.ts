@@ -1,7 +1,7 @@
 // SL 2025-10: Definitions for lab test result fields in the frontend
 
 export interface LabField {
-  key: string;
+  key: string ;
   label: string;
   type: string;
   sortable: boolean;
