@@ -75,9 +75,6 @@ export const LabResultForm: React.FC<Props> = ({ onSave, results, personId }) =>
 
 
 
-
-
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -96,6 +93,7 @@ export const LabResultForm: React.FC<Props> = ({ onSave, results, personId }) =>
                 // Olemassa oleva → PUT
                 else {
                     const updated = await updateLabResult(row.ID, row);
+                    console.log("Päivitetty rivi:", updated);
                     saved.push(updated);
                 }
             }
@@ -104,7 +102,7 @@ export const LabResultForm: React.FC<Props> = ({ onSave, results, personId }) =>
 
             onSave?.(saved);   // kerrotaan parentille että tallennus ok
 
-            alert("Tallennettu!");
+            //alert("Tallennettu!");
         } catch (err: any) {
             console.error("👉 Tallennusvirhe", err);
 

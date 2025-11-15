@@ -16,6 +16,8 @@ const LabTestResults: React.FC = () => {
     const [newResults, setNewResults] = useState<LabResult[]>([]);
     const [activeTab, setActiveTab] = useState<"results" | "edit" | "import">("results");
     const [selectedResultIds, setSelectedResultIds] = useState<number[]>([]);
+    //const [selectedIds, setSelectedIds] = useState<number[]>([]); // SL20251115 tämä turhaan, tuo ylempi käy
+    const [formRows, setFormRows] = useState<LabResult[]>([]); // SL20251115
 
 
     // 🔹 Haku henkilön tunnuksella
@@ -36,6 +38,65 @@ const LabTestResults: React.FC = () => {
         }
     };
 
+    // SL20231115
+    const handleEditSelected = () => {
+        const selected = results.filter(r => selectedResultIds.includes(r.ID!));
+        setFormRows(selected);
+        setActiveTab("edit");
+    };
+
+    // SL20231115
+    const handleCopySelectedXX = () => {
+        const selected = results
+            .filter(r => selectedResultIds.includes(r.ID!))
+            .map(r => ({ ...r, ID: null }));   // uusi rivi
+        //setFormRows(selected); // tähän ei käy, koska voi olla null
+        setActiveTab("edit");
+    };
+
+    const handleCopySelected = () => {
+        const selected = results
+            .filter(r => selectedResultIds.includes(r.ID!)) // TODO Tutki mitä tämä tarkoittaa ja tekee
+            .map(r => ({
+                ...r,
+                ID: undefined,
+                SampleDate: new Date().toISOString().slice(0, 16),
+                ResultAddedDate: "",
+            }));   // uusi rivi
+        setFormRows(selected); // tämä valitti, jos oli null!
+        setActiveTab("edit");
+    };
+
+    // SL20231115 korjasin tämän itse näin, mutta ei taida valita niitä rivejä oikein...?:
+    const handleCopySelectedXY = () => {
+        const selected = results.map(r => ({
+            ...r,
+            ID: undefined,       // uusi rivi → ei ID:tä
+            SampleDate: new Date().toISOString().slice(0, 16),
+            ResultAddedDate: "",
+        }));
+        setFormRows(selected);
+        setActiveTab("edit");
+    }
+
+    // SL20251115 kun tallennettu formista
+    const handleSave = (saved: LabResult[]) => {
+        alert("handleSave");
+        console.log(saved);
+        // päivitetään hakutulokset: päivitä/korvaa lisätyt
+        const updated = [...results];
+
+        saved.forEach(row => {
+            const i = updated.findIndex(r => r.ID === row.ID);
+            if (i >= 0) updated[i] = row;
+            else updated.push(row);
+        });
+
+        setResults(updated);
+        setFormRows([]);
+        setSelectedResultIds([]);
+        setActiveTab("results");
+    };
 
     return (
         <div style={{ padding: "2rem", fontFamily: "Arial" }}>
@@ -72,35 +133,19 @@ const LabTestResults: React.FC = () => {
                 <LabResultsTable
                     personId={personId}
                     results={results}
-                    onSelectionChange={(ids) => setSelectedResultIds(ids)}
-                    onEditSelected={(rows) => {
-                        setNewResults(rows);
-                        setActiveTab("edit");      // 🔵 siirrytään edit-välilehdelle
-                    }}
-                    onCopySelected={(rows) => {
-                        const copies = rows.map(r => ({
-                            ...r,
-                            ID: undefined,       // uusi rivi → ei ID:tä
-                            SampleDate: new Date().toISOString().slice(0, 16),
-                            ResultAddedDate: "",
-                        }));
-                        setNewResults(copies);
-                        setActiveTab("edit");
-                    }}
+                    selectedIds={selectedResultIds}   
+                    // onSelectionChange={(ids) => setSelectedResultIds(ids)} // TÄMÄ EI OK!! muuttuisi kesken renderöinnin
+                    onSelectionChange={setSelectedResultIds}  // NYT OK
+                    onEditSelected={handleEditSelected}  
+                    onCopySelected={handleCopySelected}
                 />
             )}
 
             {activeTab === "edit" && (
                 <LabResultForm
                     personId={personId}
-                    results={newResults}
-                //onAdd={() => addNewResult()}           // lisää uusi rivi
-                /*
-                onSave={(savedRows) => {
-                    fetchResults(personId);            // hae freshit
-                    setActiveTab("results");           // 🔵 palaa tuloksiin
-                }}
-                    */
+                    results={formRows}
+                    onSave={handleSave}
                 />
             )}
 
