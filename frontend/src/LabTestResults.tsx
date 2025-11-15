@@ -5,14 +5,18 @@ import { LabResult } from "./api/labresults";
 import { LabResultsTable } from "./components/LabResultsTable";
 import { LabResultForm } from "./components/LabResultForm";
 import { getLabResults } from "./api/labresults";
+import { Tabs } from "./components/Tabs";
 
 const LabTestResults: React.FC = () => {
+
     const [personId, setPersonId] = useState("");
     const [results, setResults] = useState<LabResult[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [showNewForm, setShowNewForm] = useState(false);
     const [newResults, setNewResults] = useState<LabResult[]>([]);
+    const [activeTab, setActiveTab] = useState<"results" | "edit" | "import">("results");
+    const [selectedResultIds, setSelectedResultIds] = useState<number[]>([]);
+
 
     // 🔹 Haku henkilön tunnuksella
     const handleSearch = async () => {
@@ -37,15 +41,9 @@ const LabTestResults: React.FC = () => {
         <div style={{ padding: "2rem", fontFamily: "Arial" }}>
             <h1>🧪 Laboratoriotulokset</h1>
 
-            {showNewForm &&
-                <>
-                <h2>Lisää uusi laboratoriotulos</h2>
-                    <LabResultForm personId={personId} results={newResults}   />
-                </>
-            }
-
             {/* 🔹 Haku henkilön tunnuksella */}
             <div style={{ marginBottom: "1rem" }}>
+                <label style={{ marginRight: "0.5rem" }}>Henkilön tunnus:</label>
                 <input
                     type="text"
                     value={personId}
@@ -53,12 +51,59 @@ const LabTestResults: React.FC = () => {
                     placeholder="Anna henkilön tunnus"
                     style={{ marginRight: "0.5rem" }}
                 />
-                <button onClick={handleSearch}>Hae</button>
-                <button onClick={() => {
-                    setShowNewForm(true);
-                    //if (newResults.length === 0) addNewResult();
-                }} style={{ marginLeft: '8px' }}>Lisää uusi tulos</button>
+                <button onClick={handleSearch}>Hae tulokset</button>
+
             </div>
+
+
+            <Tabs
+                active={activeTab}
+                onChange={setActiveTab}
+                tabs={[
+                    { key: "results", label: "Hakutulokset" },
+                    { key: "edit", label: "Lisää / Muokkaa" },
+                    { key: "import", label: "Massatuonti" }
+                ]}
+            />
+
+
+
+            {activeTab === "results" && (
+                <LabResultsTable
+                    personId={personId}
+                    results={results}
+                    onSelectionChange={(ids) => setSelectedResultIds(ids)}
+                    onEditSelected={(rows) => {
+                        setNewResults(rows);
+                        setActiveTab("edit");      // 🔵 siirrytään edit-välilehdelle
+                    }}
+                    onCopySelected={(rows) => {
+                        const copies = rows.map(r => ({
+                            ...r,
+                            ID: undefined,       // uusi rivi → ei ID:tä
+                            SampleDate: new Date().toISOString().slice(0, 16),
+                            ResultAddedDate: "",
+                        }));
+                        setNewResults(copies);
+                        setActiveTab("edit");
+                    }}
+                />
+            )}
+
+            {activeTab === "edit" && (
+                <LabResultForm
+                    personId={personId}
+                    results={newResults}
+                //onAdd={() => addNewResult()}           // lisää uusi rivi
+                /*
+                onSave={(savedRows) => {
+                    fetchResults(personId);            // hae freshit
+                    setActiveTab("results");           // 🔵 palaa tuloksiin
+                }}
+                    */
+                />
+            )}
+
 
             {error && <p style={{ color: "red" }}>{error}</p>}
 
@@ -66,13 +111,12 @@ const LabTestResults: React.FC = () => {
             {loading ? (
                 <p>Ladataan...</p>
             ) : results.length > 0 ? (
-                <LabResultsTable personId={personId} results={results} onSelectionChange={(sel) => console.log("selected", sel)} />
+                <></>
             ) : (
                 <p>Ei tuloksia haettu.</p>
             )}
 
             <hr style={{ margin: "2rem 0" }} />
-
 
         </div>
     );

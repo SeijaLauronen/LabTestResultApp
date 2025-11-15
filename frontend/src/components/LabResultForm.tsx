@@ -1,4 +1,5 @@
 // SL 202511: Lab result form component for adding new results
+// TODO henkilön tunniste luetaan vain päänäytöltä...
 import React, { useState, useEffect } from "react";
 import { LabResult, addLabResult, updateLabResult } from "../api/labresults";
 import { labResultFields, copyFields, newRowDefaults } from "../definitions/fieldDefinitions";

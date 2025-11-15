@@ -17,10 +17,10 @@ router.get("/:personId", async (req, res) => {
 // 🔹 Lisää uusi tulos
 router.post("/", async (req, res) => {
   const resultData = req.body;
-  
+
   // 🔹 Varmistetaan, ettei ResultAddedDate ole null
-  if (!resultData.ResultAddedDate) {
-    resultData.ResultAddedDate = new Date().toISOString(); // tai muoto, jota DB hyväksyy
+  if (!resultData.ResultAddedDate || resultData.ResultAddedDate.trim() === "") {
+    resultData.ResultAddedDate = new Date().toISOString().slice(0, 19).replace("T", " ");
   }
 
   try {

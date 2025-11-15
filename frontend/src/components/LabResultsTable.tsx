@@ -7,12 +7,35 @@ interface Props {
     personId: string;
     results: LabResult[];
     onSelectionChange?: (selectedIds: number[]) => void;
+    onEditSelected?: (rows: LabResult[]) => void;
+    onCopySelected?: (rows: LabResult[]) => void;
 }
 
-export const LabResultsTable: React.FC<Props> = ({ personId, results, onSelectionChange }) => {
+export const LabResultsTable: React.FC<Props> = ({
+    personId,
+    results,
+    onSelectionChange,
+    onEditSelected,
+    onCopySelected
+}) => {
     const [sortKey, setSortKey] = useState<string | null>("SampleDate");
     const [sortAsc, setSortAsc] = useState<boolean>(true);
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
+    const selectedRows = results.filter(r => selectedIds.includes(r.ID as number));
+
+    const editSelected = () => {
+        if (selectedRows.length === 0) return;
+        onEditSelected?.(selectedRows);
+    };
+
+    const copySelected = () => {
+        if (selectedRows.length === 0) return;
+        onCopySelected?.(selectedRows);
+    };
+
+    const deleteSelected = () => {
+        // (teet tämän myöhemmin)
+    };
 
     const handleSort = (key: string) => {
         if (sortKey === key) setSortAsc(!sortAsc);
@@ -62,50 +85,66 @@ export const LabResultsTable: React.FC<Props> = ({ personId, results, onSelectio
         }
     };
 
-    if (!results || results.length === 0) return <p>Ei tuloksia.</p>;
+    if (!results || results.length === 0) return <></>;
 
     return (
-        <table style={{ width: "100%", borderCollapse: "collapse" }} border={1} cellPadding={6}>
-            <thead>
-                <tr>
-                    <th>
-                        <input
-                            type="checkbox"
-                            checked={selectedIds.length === sortedResults.length && sortedResults.length > 0}
-                            onChange={toggleAll}
-                        />
-                    </th>
-                    {labResultFields.map((field: LabField) => (
-                        <th
-                            key={field.key}
-                            onClick={() => field.sortable && handleSort(field.key)}
-                            style={{ cursor: field.sortable ? "pointer" : "default", userSelect: "none" }}
-                        >
-                            {field.label}
-                            {sortKey === field.key && (sortAsc ? " ▲" : " ▼")}
-                        </th>
-                    ))}
-                </tr>
-            </thead>
-            <tbody>
-                {sortedResults.map((row) => (
-                    <tr key={row.ID}>
-                        <td>
+        <>
+            <div style={{ marginBottom: "15px" }}>
+                {selectedIds.length > 0 && <>
+                    <button onClick={deleteSelected} >
+                        Poista valitut
+                    </button>
+                    <button onClick={copySelected} >
+                        Kopioi valitut uusien pohjaksi
+                    </button>
+                    <button onClick={editSelected} >
+                        Muuta valitut
+                    </button>
+                </>}
+            </div>
+
+            <table style={{ width: "100%", borderCollapse: "collapse" }} border={1} cellPadding={6}>
+                <thead>
+                    <tr>
+                        <th>
                             <input
                                 type="checkbox"
-                                checked={selectedIds.includes(row.ID!)}
-                                onChange={() => toggleRow(row.ID)}
+                                checked={selectedIds.length === sortedResults.length && sortedResults.length > 0}
+                                onChange={toggleAll}
                             />
-                        </td>
+                        </th>
                         {labResultFields.map((field: LabField) => (
-                            <td key={field.key}>
-                                {/* PersonID näytetään vain yhdessä kentässä (sen logiikan voi lisätä täällä) */}
-                                {field.key === "PersonID" ? personId : (row as any)[field.key]}
-                            </td>
+                            <th
+                                key={field.key}
+                                onClick={() => field.sortable && handleSort(field.key)}
+                                style={{ cursor: field.sortable ? "pointer" : "default", userSelect: "none" }}
+                            >
+                                {field.label}
+                                {sortKey === field.key && (sortAsc ? " ▲" : " ▼")}
+                            </th>
                         ))}
                     </tr>
-                ))}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {sortedResults.map((row) => (
+                        <tr key={row.ID}>
+                            <td>
+                                <input
+                                    type="checkbox"
+                                    checked={selectedIds.includes(row.ID!)}
+                                    onChange={() => toggleRow(row.ID)}
+                                />
+                            </td>
+                            {labResultFields.map((field: LabField) => (
+                                <td key={field.key}>
+                                    {/* PersonID näytetään vain yhdessä kentässä (sen logiikan voi lisätä täällä) */}
+                                    {field.key === "PersonID" ? personId : (row as any)[field.key]}
+                                </td>
+                            ))}
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </>
     );
 };
