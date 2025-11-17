@@ -2,6 +2,7 @@
 import React, { useMemo, useState } from "react";
 import { labResultFields, LabField } from "../definitions/fieldDefinitions";
 import { LabResult } from "../api/labresults";
+import { ReadOnlyField } from "./ReadOnlyField";
 
 
 // TODO
@@ -13,10 +14,9 @@ The format is "yyyy-MM-ddThh:mm" followed by optional ":ss" or ":ss.SSS".
 interface Props {
     personId: string;
     results: LabResult[];
-
+    onSearch: () => void;
     selectedIds: number[];
     onSelectionChange: (ids: number[]) => void;
-
     onEditSelected?: (rows: LabResult[]) => void;
     onCopySelected?: (rows: LabResult[]) => void;
 }
@@ -24,6 +24,7 @@ interface Props {
 export const LabResultsTable: React.FC<Props> = ({
     personId,
     results,
+    onSearch,
     selectedIds,
     onSelectionChange,
     onEditSelected,
@@ -99,6 +100,11 @@ export const LabResultsTable: React.FC<Props> = ({
 
     const selectedRows = results.filter(r => selectedIds.includes(r.ID as number));
 
+    // SL 20251117
+    const fetchResults = () => {
+        onSearch();
+    }
+
     const editSelected = () => {
         if (selectedRows.length === 0) return;
         onEditSelected?.(selectedRows);
@@ -113,12 +119,21 @@ export const LabResultsTable: React.FC<Props> = ({
         alert("Poisto toteutetaan myöhemmin!");
     };
 
-    if (!results || results.length === 0) return <></>;
+    //if (!results || results.length === 0) return <></>;
 
     return (
         <>
             {/* TOP ACTION BUTTONS */}
-            <div style={{ marginBottom: "15px" }}>
+            <div style={{
+                marginBottom: "15px",
+                /*
+                display: "flex",
+                alignItems: "center",
+                gap: "10px" // sopiva väli elementtien väliin
+            */
+            }}>
+                <ReadOnlyField label="Tunniste:" value={personId} />
+                <button onClick={fetchResults}>Hae tulokset</button>{" "}
                 {selectedIds.length > 0 && (
                     <>
                         <button onClick={deleteSelected}>Poista valitut</button>{" "}
@@ -126,10 +141,11 @@ export const LabResultsTable: React.FC<Props> = ({
                         <button onClick={editSelected}>Muuta valitut</button>
                     </>
                 )}
-            </div>
+            </div >
 
             {/* MAIN TABLE */}
-            <table style={{ width: "100%", borderCollapse: "collapse" }} border={1} cellPadding={6}>
+            < table style={{ width: "100%", borderCollapse: "collapse" }
+            } border={1} cellPadding={6} >
                 <thead>
                     <tr>
                         <th>
@@ -180,7 +196,7 @@ export const LabResultsTable: React.FC<Props> = ({
                         </tr>
                     ))}
                 </tbody>
-            </table>
+            </table >
         </>
     );
 };

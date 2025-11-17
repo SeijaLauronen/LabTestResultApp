@@ -108,11 +108,17 @@ const LabTestResults: React.FC = () => {
                 <input
                     type="text"
                     value={personId}
-                    onChange={(e) => setPersonId(e.target.value)}
+                    onChange={(e) => {
+                        setPersonId(e.target.value)
+                        // 🔹 Tyhjennä aiemmat tulokset
+                        setResults([]);
+                        setSelectedResultIds([]);
+                        setFormRows([]);
+                    }}
                     placeholder="Anna henkilön tunnus"
                     style={{ marginRight: "0.5rem" }}
                 />
-                <button onClick={handleSearch}>Hae tulokset</button>
+                {/*<button onClick={handleSearch}>Hae tulokset</button> */}
 
             </div>
 
@@ -133,10 +139,11 @@ const LabTestResults: React.FC = () => {
                 <LabResultsTable
                     personId={personId}
                     results={results}
-                    selectedIds={selectedResultIds}   
+                    onSearch={handleSearch}
+                    selectedIds={selectedResultIds}
                     // onSelectionChange={(ids) => setSelectedResultIds(ids)} // TÄMÄ EI OK!! muuttuisi kesken renderöinnin
                     onSelectionChange={setSelectedResultIds}  // NYT OK
-                    onEditSelected={handleEditSelected}  
+                    onEditSelected={handleEditSelected}
                     onCopySelected={handleCopySelected}
                 />
             )}
