@@ -56,3 +56,9 @@ export const updateLabResult = async (
         throw err;
     }
 };
+
+// 🔹 Poista tulos
+export const deleteLabResult = async (id: number) => {
+    const res = await axios.delete(`${API_URL}/${id}`);
+    return res.data;
+};

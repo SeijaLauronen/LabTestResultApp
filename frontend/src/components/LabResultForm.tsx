@@ -1,4 +1,5 @@
 // SL 202511: Lab result form component for adding new results
+// TODO henkilön tunniste luetaan vain päänäytöltä...
 import React, { useState, useEffect } from "react";
 import { LabResult, addLabResult, updateLabResult } from "../api/labresults";
 import { labResultFields, copyFields, newRowDefaults } from "../definitions/fieldDefinitions";
@@ -74,9 +75,6 @@ export const LabResultForm: React.FC<Props> = ({ onSave, results, personId }) =>
 
 
 
-
-
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -95,6 +93,7 @@ export const LabResultForm: React.FC<Props> = ({ onSave, results, personId }) =>
                 // Olemassa oleva → PUT
                 else {
                     const updated = await updateLabResult(row.ID, row);
+                    console.log("Päivitetty rivi:", updated);
                     saved.push(updated);
                 }
             }
@@ -103,7 +102,7 @@ export const LabResultForm: React.FC<Props> = ({ onSave, results, personId }) =>
 
             onSave?.(saved);   // kerrotaan parentille että tallennus ok
 
-            alert("Tallennettu!");
+            //alert("Tallennettu!");
         } catch (err: any) {
             console.error("👉 Tallennusvirhe", err);
 
