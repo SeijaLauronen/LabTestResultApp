@@ -1,7 +1,7 @@
 // SL 202511: Lab results table component
 import React, { useMemo, useState } from "react";
 import { labResultFields, LabField } from "../definitions/fieldDefinitions";
-import { LabResult } from "../api/labresults";
+import { deleteLabResult, LabResult } from "../api/labresults";
 import { ReadOnlyField } from "./ReadOnlyField";
 
 
@@ -19,6 +19,7 @@ interface Props {
     onSelectionChange: (ids: number[]) => void;
     onEditSelected?: (rows: LabResult[]) => void;
     onCopySelected?: (rows: LabResult[]) => void;
+    onDeleteSelected?: (rows: LabResult[]) => void;
 }
 
 export const LabResultsTable: React.FC<Props> = ({
@@ -28,7 +29,8 @@ export const LabResultsTable: React.FC<Props> = ({
     selectedIds,
     onSelectionChange,
     onEditSelected,
-    onCopySelected
+    onCopySelected,
+    onDeleteSelected
 }) => {
 
     // ---------------------------------------
@@ -115,8 +117,43 @@ export const LabResultsTable: React.FC<Props> = ({
         onCopySelected?.(selectedRows);
     };
 
-    const deleteSelected = () => {
-        alert("Poisto toteutetaan myöhemmin!");
+    // TODO tähän tarkemmin paluuarvot ja niiden käsittely
+    const deleteSelected = async () => {
+        if (selectedRows.length === 0) return;
+        // alert("Poisto toteutetaan myöhemmin!");
+
+        // Käydään läpi jokainen rivi
+        const deleted: LabResult[] = [];
+
+        try {
+            for (const row of selectedRows) {
+                console.log("Poistetaan rivi:", row);
+                // Poistetaan rivi → DELETE                
+                const res = await deleteLabResult(row.ID as number);
+                deleted.push(row as LabResult);
+            }
+
+            console.log("Poisto valmis:", deleted);
+
+            onDeleteSelected?.(deleted);   // kerrotaan parentille että poisto ok
+
+            //alert("Poistettu!");
+        } catch (err: any) {
+            console.error("👉 Virhe poistossa", err);
+
+            if (err.response) {
+                alert(
+                    "Virhe poistossa (server): "
+                    + err.response.status
+                    + " - "
+                    + JSON.stringify(err.response.data)
+                );
+            } else {
+                alert("Virhe poistossa (client): " + err.message);
+            }
+        }
+
+        //onDeleteSelected?.(selectedRows);
     };
 
     //if (!results || results.length === 0) return <></>;

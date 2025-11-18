@@ -1,4 +1,4 @@
-// SL 2025-10: Definitions for lab test result fields in the frontend
+// SL 202511: Definitions for lab test result fields in the frontend
 
 export interface LabField {
   key: string ;

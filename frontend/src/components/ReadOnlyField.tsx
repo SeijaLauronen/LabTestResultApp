@@ -1,4 +1,4 @@
-// SL 202511
+// SL 202511: component for readonly fields
 import React from "react";
 
 interface Props {

@@ -53,24 +53,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-/*
-router.post("/", async (req, res) => {
-  const resultData = req.body;
 
-  // 🔹 Varmistetaan, ettei ResultAddedDate ole null
-  if (!resultData.ResultAddedDate || resultData.ResultAddedDate.trim() === "") {
-    resultData.ResultAddedDate = new Date().toISOString().slice(0, 19).replace("T", " ");
-  }
-
-  try {
-    const [result] = await pool.query("INSERT INTO labtestresults SET ?", [resultData]);
-    res.json(result);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Insert failed" });
-  }
-});
-*/
 
 // 🔹 Päivitä tulos
 router.put("/:id", async (req, res) => {
@@ -97,19 +80,26 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-
-/*
-router.put("/:id", async (req, res) => {
+router.delete("/:id", async (req, res) => {
   const { id } = req.params;
-  const data = req.body;
+
   try {
-    await pool.query("UPDATE labtestresults SET ? WHERE ID = ?", [data, id]);
-    res.json({ success: true });
+    // 🔹 Poisto
+    const [result] = await pool.query<ResultSetHeader>(
+      "DELETE FROM labtestresults WHERE ID = ?",
+      [id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Row not found" });
+    }
+
+    res.json({ success: true, deletedRows: result.affectedRows });
+
   } catch (err) {
-    res.status(500).json({ error: "Update failed" });
+    console.error("DELETE ERROR:", err);
+    res.status(500).json({ error: "Delete failed" });
   }
 });
-*/
-
 
 export default router;

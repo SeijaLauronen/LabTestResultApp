@@ -16,8 +16,8 @@ const LabTestResults: React.FC = () => {
     const [newResults, setNewResults] = useState<LabResult[]>([]);
     const [activeTab, setActiveTab] = useState<"results" | "edit" | "import">("results");
     const [selectedResultIds, setSelectedResultIds] = useState<number[]>([]);
-    //const [selectedIds, setSelectedIds] = useState<number[]>([]); // SL20251115 tämä turhaan, tuo ylempi käy
-    const [formRows, setFormRows] = useState<LabResult[]>([]); // SL20251115
+    //const [selectedIds, setSelectedIds] = useState<number[]>([]); // SL 20251115 tämä turhaan, tuo ylempi käy
+    const [formRows, setFormRows] = useState<LabResult[]>([]); // SL 20251115
 
 
     // 🔹 Haku henkilön tunnuksella
@@ -38,14 +38,14 @@ const LabTestResults: React.FC = () => {
         }
     };
 
-    // SL20231115
+    // SL 20251115
     const handleEditSelected = () => {
         const selected = results.filter(r => selectedResultIds.includes(r.ID!));
         setFormRows(selected);
         setActiveTab("edit");
     };
 
-    // SL20231115
+    // SL 20251115
     const handleCopySelectedXX = () => {
         const selected = results
             .filter(r => selectedResultIds.includes(r.ID!))
@@ -67,7 +67,7 @@ const LabTestResults: React.FC = () => {
         setActiveTab("edit");
     };
 
-    // SL20231115 korjasin tämän itse näin, mutta ei taida valita niitä rivejä oikein...?:
+    // SL 20251115 korjasin tämän itse näin, mutta ei taida valita niitä rivejä oikein...?:
     const handleCopySelectedXY = () => {
         const selected = results.map(r => ({
             ...r,
@@ -79,7 +79,7 @@ const LabTestResults: React.FC = () => {
         setActiveTab("edit");
     }
 
-    // SL20251115 kun tallennettu formista
+    // SL 20251115 kun tallennettu formista
     const handleSave = (saved: LabResult[]) => {
         alert("handleSave");
         console.log(saved);
@@ -96,6 +96,14 @@ const LabTestResults: React.FC = () => {
         setFormRows([]);
         setSelectedResultIds([]);
         setActiveTab("results");
+    };
+
+    // SL 20251118 kun poistettu hakutulostabilla
+    const handleDeleteSelected = () => {
+        //alert("handleDelete");
+        setFormRows([]);
+        setSelectedResultIds([]);
+        handleSearch();
     };
 
     return (
@@ -145,6 +153,7 @@ const LabTestResults: React.FC = () => {
                     onSelectionChange={setSelectedResultIds}  // NYT OK
                     onEditSelected={handleEditSelected}
                     onCopySelected={handleCopySelected}
+                    onDeleteSelected={handleDeleteSelected}
                 />
             )}
 
