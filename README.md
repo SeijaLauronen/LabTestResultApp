@@ -1,4 +1,4 @@
-# 📘 LabTestResultApp – Full-Stack Laboratory Results Management
+# 📘 LabTestResultApp
 
 **LabTestResultApp** on full-stack-sovellus, joka yhdistää:
 
@@ -46,6 +46,7 @@ Käyttöliittymä on jaettu välilehtiin (Tabs): Hakutulokset, Lisäys/Muokkaus,
 Frontend (React + TypeScript) käyttää Axiosia lähettääkseen HTTP-pyyntöjä Node.js/Express REST API:in.
 Node.js käsittelee pyynnön ja hakee/päivittää tietoja MySQL-tietokannassa MySQL2-kirjaston avulla.
 
+```
 ┌──────────────────────────┐        Axios (GET/POST/PUT/DELETE)       ┌─────────────────────────────┐
 │  React + TypeScript      │  ─────────────────────────────────────▶ │  Node.js + Express          │
 │  Frontend                │                                          │  Backend (API)              │
@@ -59,6 +60,7 @@ Node.js käsittelee pyynnön ja hakee/päivittää tietoja MySQL-tietokannassa M
                                                                      │   MySQL Database         │
                                                                      │   - labtestresults       │
                                                                      └──────────────────────────┘
+```
 
 ---
 
