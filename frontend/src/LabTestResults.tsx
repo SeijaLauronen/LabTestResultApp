@@ -81,7 +81,7 @@ const LabTestResults: React.FC = () => {
 
     // SL 20251115 kun tallennettu formista
     const handleSave = (saved: LabResult[]) => {
-        alert("handleSave");
+        //alert("handleSave");
         console.log(saved);
         // päivitetään hakutulokset: päivitä/korvaa lisätyt
         const updated = [...results];
